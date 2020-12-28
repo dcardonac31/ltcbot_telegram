@@ -25,7 +25,7 @@ red2 = Style.NORMAL+Fore.RED
 
 def balance_history_log(phone, bot_number,balance_value):
     today = datetime.now()
-    balance_history = phone_number + ',' + bot + ',' + str(today) + ',' + balance_value 
+    balance_history = phone_number + ',' + bot + ',' + str(today) + ',' + balance_value +'\n'
     print(balance_history)
     f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
     f.write(balance_history)
@@ -48,7 +48,7 @@ if not os.path.exists('session'):
 api_id = '1228056'
 api_hash = '8d6f01a410246ea0ff48d31ea3108325'
 phone_number = '+573127853999'
-bot = "bot6"
+bot = '6'
 print(bot)
 print(phone_number)
 
