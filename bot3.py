@@ -23,12 +23,22 @@ yellow2 = Style.NORMAL+Fore.YELLOW
 red = Style.RESET_ALL+Style.BRIGHT+Fore.RED
 red2 = Style.NORMAL+Fore.RED
 
+def balance_history_log(phone, bot_number,balance_value):
+    today = datetime.now()
+    balance_history = phone_number + ',' + bot + ',' + str(today) + ',' + balance_value 
+    print(balance_history)
+    f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
+    f.write(balance_history)
+    f.close()
+
 #banner
 print ("===================================================")
 print ("~Telegram Click bot Tuyul~")
 print ("AUTHOR: RIANTO")
 print ("Youtube: Master Termux Indonesia")
 print ("Suport&thanks: Jejaka Tutorial")
+print ("MODIFIED: dcardonac31")
+print ("https://github.com/dcardonac31")
 print ("===================================================")
 
 #Sistem_Script
@@ -66,14 +76,14 @@ channel_entity = client.get_entity(channel_username)
 try:
     for ulang in range(999999999):          
         sys.stdout.write('\r                                                        \r')
-        sys.stdout.write('\r{}Mencoba Mengambil URL'.format(yellow2))
+        sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
         client.send_message(entity=channel_entity,message='🖥 Visit sites')
         sleep(3)
         message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
         channel_id = message_history.messages[0].id
         if message_history.messages[0].message.find('Sorry, there are no new ads available.') != -1:
             sys.stdout.write('\r                                                     \r')
-            sys.stdout.write('\r{}Iklan SUdah Habis Silahkan Coba Lagi Nanti\n'.format(red2))
+            sys.stdout.write('\r{}Sorry, there are no new ads available.\n'.format(red2))
             break
         url = message_history.messages[0].reply_markup.rows[0].buttons[0].url
         sys.stdout.write('\r                                                     \r')
@@ -112,25 +122,18 @@ try:
             sleep(2)
             client(GetBotCallbackAnswerRequest(channel_username,channel_id,data=message_history.messages[0].reply_markup.rows[1].buttons[1].data))
             sys.stdout.write('\r                                                     \r')
-            print (red+'\rBerhasil Skip Captcha\n')
+            print (red+'\rSuccessfully Skip Captcha\n')
 
-    today = datetime.now()
-    print("Current time: ",today)
     client.send_message(entity=channel_entity,message='balance')
-    sleep(5)        
+    sleep(5)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history = phone_number + ',' + bot + ',' + str(today) + ',' +  message_history.messages[0].message
-    print(balance_history)
-
+    balance_history_log(phone_number,bot, message_history.messages[0].message)
 except:
-    today = datetime.now()
-    print("Current time: ",today)
     client.send_message(entity=channel_entity,message='balance')
-    sleep(5)        
+    sleep(5)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history = phone_number + ',' + bot + ',' + str(today) + ',' +  message_history.messages[0].message
-    print(balance_history)
-    print(red+"ERROr Detected")
+    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    print(red+"ERROR Detected")
     sys.exit()
 
 
