@@ -46,10 +46,10 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '2961964'
-api_hash = 'a7128d1f7e253589d0a0ce27f3ddca1d'
-phone_number = '+573126566354'
-bot = '27'
+api_id = '2451246'
+api_hash = '78cd5db18cf6932a84e7a34a42779fff'
+phone_number = '+573126562251'
+bot = '30'
 print(bot)
 print(phone_number)
 
