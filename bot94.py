@@ -10,6 +10,10 @@ import colorama
 from colorama import Fore, Back, Style
 from datetime import datetime
 
+#File pass2fac
+filepass2fac = open("pass2fac.txt","r")
+pass2fac = filepass2fac.readline()
+
 #warna
 colorama.init(autoreset=True)
 hijau = Style.RESET_ALL+Style.BRIGHT+Fore.GREEN
@@ -46,9 +50,9 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '2275925'
-api_hash = 'd6fe34be20e19e683c3c14a7c0f2d330'
-phone_number = '+18017520381'
+api_id = '2225986'
+api_hash = '233614d329ebdeed79aaa088a6f8a4c0'
+phone_number = '+17869806029'
 bot = '94'
 print(bot)
 print(phone_number)
@@ -58,10 +62,9 @@ client.connect()
 if not client.is_user_authorized():
     try:
         client.send_code_request(phone_number)
-        me = client.sign_in(phone_number,input('{}Masukan Code Anda {}>>{} '.format(hijau,abu,putih)))
+        me = client.sign_in(phone_number,input('{}Code Sign in {}>>{} '.format(hijau,abu,putih)))
     except SessionPasswordNeededError:
-        password = input('{}Masukan Password 2fa Anda {}>>{} '.format(hijau,abu,putih))
-        me = client.start(phone_number,password)
+        me = client.start(phone_number,pass2fac)
 
 channel_username = '@Litecoin_click_bot'
 

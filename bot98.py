@@ -48,7 +48,7 @@ if not os.path.exists('session'):
 
 api_id = '2372148'
 api_hash = 'f9f61f78fcede273908bb77250f11021'
-phone_number = '+17868727122'
+phone_number = '+17864106003'
 bot = '98'
 print(bot)
 print(phone_number)
