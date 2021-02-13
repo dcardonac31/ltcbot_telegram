@@ -30,7 +30,8 @@ red2 = Style.NORMAL+Fore.RED
 def balance_history_log(phone, bot_number,balance_value):
     if balance_value.startswith('Available balance:'):
         today = datetime.now()
-        balance_history = phone_number + ',' + bot + ',' + str(today) + ',' + balance_value +'\n' 
+        balance_value = balance_value.replace(".",",")
+        balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
         print(balance_history)
         f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
@@ -50,9 +51,9 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '2917795'
-api_hash = 'd790bb108eda215bbca5e3cee215adc8'
-phone_number = '+17864530514'
+api_id = '3227757'
+api_hash = '76a5eee6f3eec30dd7d19c870814ce4e'
+phone_number = '+17867495876'
 bot = '126'
 print(bot)
 print(phone_number)
@@ -118,7 +119,7 @@ try:
                 r = c.post('https://dogeclick.com/reward',data={'code': code, 'token': token},headers=ua)
                 jsn = json.loads(r.text)
                 sys.stdout.write('\r                                                     \r')
-                sys.stdout.write(hijau+"\rYou earned "+jsn['reward']+" Doge for visiting sites\n")
+                sys.stdout.write(hijau+"\rYou earned "+jsn['reward']+" LTC for visiting sites\n")
         else:
             sys.stdout.write('\r                                                     \r')
             sys.stdout.write(red+'\rCaptcha detected')

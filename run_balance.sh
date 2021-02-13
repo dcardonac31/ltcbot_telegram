@@ -1,4 +1,4 @@
-sleep 15m
+sleep 54m
 python bot1_balance.py
 sleep 60m
 python bot1_balance.py
