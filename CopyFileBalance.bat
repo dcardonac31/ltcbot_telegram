@@ -1,0 +1,2 @@
+cd C:\Users\david\Downloads\MEmu Download\bot_ltc\ltcbot_telegram
+XCOPY "C:\Users\david\Downloads\MEmu Download\bot_ltc\ltcbot_telegram\balance_history.txt" "C:\Users\david\Downloads\MEmu Download\bot_ltc\ltcbot_telegram\balance_history_copy.txt" /Y
