@@ -23,15 +23,19 @@ yellow2 = Style.NORMAL+Fore.YELLOW
 red = Style.RESET_ALL+Style.BRIGHT+Fore.RED
 red2 = Style.NORMAL+Fore.RED
 
-def balance_history_log(phone, bot_number,balance_value):
+def balance_history_log(phone, bot_number,balance_value, apiid, apihash):
     if balance_value.startswith('Available balance:'):
         today = datetime.now()
         balance_value = balance_value.replace(".",",")
         balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
+        insertbot = bot_number+";"+'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
         print(balance_history)
         f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
         f.close()
+        f2 = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/sqlbots.txt","a")
+        f2.write(insertbot)
+        f2.close()
 
 #banner
 print ("===================================================")
@@ -47,9 +51,9 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '2799913'
-api_hash = '7ab605273716adb7f4902e3899235bc7'
-phone_number = '+573126563919'
+api_id = '842534'
+api_hash = 'c4c70f436aff701ac9f09d1c289ef89f'
+phone_number = '+17864921225'
 bot = '10'
 print(bot)
 print(phone_number)
@@ -78,6 +82,7 @@ try:
     for ulang in range(999999999):          
         sys.stdout.write('\r                                                        \r')
         sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
+        client.send_message(entity=channel_entity,message='Cancel')
         client.send_message(entity=channel_entity,message='🖥 Visit sites')
         sleep(3)
         message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
@@ -128,11 +133,11 @@ try:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
 except:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
     print(red+"ERROR Detected")
     sys.exit()

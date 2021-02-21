@@ -23,16 +23,19 @@ yellow2 = Style.NORMAL+Fore.YELLOW
 red = Style.RESET_ALL+Style.BRIGHT+Fore.RED
 red2 = Style.NORMAL+Fore.RED
 
-def balance_history_log(phone, bot_number,balance_value):
+def balance_history_log(phone, bot_number,balance_value, apiid, apihash):
     if balance_value.startswith('Available balance:'):
         today = datetime.now()
         balance_value = balance_value.replace(".",",")
         balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
+        insertbot = bot_number+";"+'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
         print(balance_history)
         f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
         f.close()
-
+        f2 = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/sqlbots.txt","a")
+        f2.write(insertbot)
+        f2.close()
 #banner
 print ("===================================================")
 print ("~Telegram Click bot Tuyul~")
@@ -128,11 +131,11 @@ try:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
 except:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
     print(red+"ERROR Detected")
     sys.exit()

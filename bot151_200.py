@@ -9,18 +9,36 @@ import requests, json, re, sys, os
 import colorama
 from colorama import Fore, Back, Style
 from datetime import datetime
-import pyodbc
+import psycopg2
+from psycopg2 import Error
 
 #File pass2fac
 filepass2fac = open("pass2fac.txt","r")
 pass2fac = filepass2fac.readline()
 
-#Connection SQL SERVER
-conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=DELLVOSTRO;'
-                      'Database=database_name;'
-                      'Trusted_Connection=yes;')
+#File Conn Postgresql
+paramsConnDB = open("paramsConnDB.config","r")
+listParamsConnDB = [row for row in paramsConnDB.readlines()]
+paramsConnDB.close()
 
+#Connection SQL SERVER
+
+hostConn = listParamsConnDB[0].rstrip()
+dbConn = listParamsConnDB[1].rstrip()
+userConn = listParamsConnDB[2].rstrip()
+passConn = listParamsConnDB[3].rstrip()
+
+connDB = psycopg2.connect(
+    host = hostConn,
+    port = "5432",
+    database = dbConn,
+    user = userConn,
+    password = passConn
+)
+
+initialBot = 151
+endBot = 200
+endBotAux = 0
 
 #warna
 colorama.init(autoreset=True)
@@ -34,12 +52,14 @@ yellow = Style.RESET_ALL+Style.BRIGHT+Fore.YELLOW
 yellow2 = Style.NORMAL+Fore.YELLOW
 red = Style.RESET_ALL+Style.BRIGHT+Fore.RED
 red2 = Style.NORMAL+Fore.RED
+blue = Style.NORMAL+Fore.BLUE
 
 def balance_history_log(phone, bot_number,balance_value):
     if balance_value.startswith('Available balance:'):
         today = datetime.now()
         balance_value = balance_value.replace(".",",")
         balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
+        insertbot = bot_number+";"+'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
         print(balance_history)
         f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
@@ -59,91 +79,127 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '3043617'
-api_hash = 'c1089eff95fd2370e86d99ea3bcf4112'
-phone_number = '+13852022498'
-bot = '150'
-print(bot)
-print(phone_number)
+api_id = ''
+api_hash = ''
+phone_number = ''
+bot = ''
 
-client = TelegramClient('session/'+phone_number,api_id,api_hash)
-client.connect()
-if not client.is_user_authorized():
-    try:
-        client.send_code_request(phone_number)
-        me = client.sign_in(phone_number,input('{}Code Sign in {}>>{} '.format(hijau,abu,putih)))
-    except SessionPasswordNeededError:
-        me = client.start(phone_number,pass2fac)
-
-channel_username = '@Litecoin_click_bot'
+control_End_Bucle = 0
 
 
-c = requests.session()
+while control_End_Bucle == 0:
+    cursor = connDB.cursor()
+    cursor.execute('SELECT * FROM bots where IdBot >='+str(initialBot)+' and IdBot <='+str(endBot)+' ORDER BY IdBot')
 
-ua = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
-}
+    cursor2 = connDB.cursor()
+    cursor2.execute('SELECT MAX(idbot) FROM bots WHERE idbot <= '+str(endBot))
 
-channel_entity = client.get_entity(channel_username)
-try:
-    for ulang in range(999999999):          
-        sys.stdout.write('\r                                                        \r')
-        sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
-        client.send_message(entity=channel_entity,message='🖥 Visit sites')
-        sleep(3)
-        message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-        channel_id = message_history.messages[0].id
-        if message_history.messages[0].message.find('Sorry, there are no new ads available.') != -1:
-            sys.stdout.write('\r                                                     \r')
-            sys.stdout.write('\r{}Sorry, there are no new ads available.\n'.format(red2))
-            break
-        url = message_history.messages[0].reply_markup.rows[0].buttons[0].url
-        sys.stdout.write('\r                                                     \r')
-        sys.stdout.write('\r{}Visit To URL {}'.format(yellow2,putih)+url)
+    listBots = []
 
-        r = c.get(url,headers=ua)
-        soup = BeautifulSoup(r.text,"html.parser")
+    for row in cursor:
+        listBots.append(row)
 
-        if soup.find('div',class_='g-recaptcha') is None and soup.find('div',id='headbar') is None:
-            sleep(2)
-            message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-            message = message_history.messages[0].message
-            sys.stdout.write('\r                                                     \r')
-            sys.stdout.write('\r'+yellow+message)
-            if message_history.messages[0].message.find('Please stay on') != -1 or message_history.messages[0].message.find('You must stay') != -1:
-                timer = re.findall(r'([\d.]*\d+)',message)
-                sleep(int(timer[0]))
+    for row in cursor2:
+        endBotAux = row[0]
+
+    print("--------------------")
+    print("Last bots: ")
+    print(endBotAux)
+    print("--------------------")
+
+    for item in listBots:
+        print("--------------------")        
+        api_id = str(item[2])
+        print("api_id: " + api_id)
+        api_hash = item[3]
+        print("api_hash: "+ api_hash)
+        phone_number = item[1]
+        print("phone_number: "+ item[1])
+        bot = str(item[0])
+        print("bot: "+ str(item[0]))
+        print("--------------------")
+        client = TelegramClient('session/'+phone_number,api_id,api_hash)
+        client.connect()
+        if not client.is_user_authorized():
+            try:
+                client.send_code_request(phone_number)
+                me = client.sign_in(phone_number,input('{}Code Sign in {}>>{} '.format(hijau,abu,putih)))
+            except SessionPasswordNeededError:
+                me = client.start(phone_number,pass2fac)
+
+        channel_username = '@Litecoin_click_bot'
+
+
+        c = requests.session()
+
+        ua = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
+        }
+
+        channel_entity = client.get_entity(channel_username)
+        try:
+            for ulang in range(999999999):          
+                sys.stdout.write('\r                                                        \r')
+                sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
+                client.send_message(entity=channel_entity,message='🖥 Visit sites')
                 sleep(3)
-                message_history = client(GetHistoryRequest(peer=channel_entity, limit=1, offset_date=None, offset_id=0, max_id=0, min_id=0,add_offset=0, hash=0))
+                message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+                channel_id = message_history.messages[0].id
+                if message_history.messages[0].message.find('Sorry, there are no new ads available.') != -1:
+                    sys.stdout.write('\r                                                     \r')
+                    sys.stdout.write('\r{}Sorry, there are no new ads available.\n'.format(red2))
+                    break
+                url = message_history.messages[0].reply_markup.rows[0].buttons[0].url
                 sys.stdout.write('\r                                                     \r')
-                sys.stdout.write('\r{}'.format(hijau)+message_history.messages[0].message+'\n')
+                sys.stdout.write('\r{}Visit To URL {}'.format(yellow2,putih)+url)
 
-        elif soup.find('div',id='headbar') is not None:
-            for data in soup.find_all('div',class_='container-fluid'):
-                code = data.get('data-code')
-                timer = data.get('data-timer')
-                token = data.get('data-token')
-                sleep(int(timer))
-                r = c.post('https://dogeclick.com/reward',data={'code': code, 'token': token},headers=ua)
-                jsn = json.loads(r.text)
-                sys.stdout.write('\r                                                     \r')
-                sys.stdout.write(hijau+"\rYou earned "+jsn['reward']+" LTC for visiting sites\n")
-        else:
-            sys.stdout.write('\r                                                     \r')
-            sys.stdout.write(red+'\rCaptcha detected')
-            sleep(2)
-            client(GetBotCallbackAnswerRequest(channel_username,channel_id,data=message_history.messages[0].reply_markup.rows[1].buttons[1].data))
-            sys.stdout.write('\r                                                     \r')
-            print (red+'\rSuccessfully Skip Captcha\n')
+                r = c.get(url,headers=ua)
+                soup = BeautifulSoup(r.text,"html.parser")
 
-    client.send_message(entity=channel_entity,message='balance')
-    sleep(6)
-    message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
-except:
-    client.send_message(entity=channel_entity,message='balance')
-    sleep(6)
-    message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
-    print(red+"ERROR Detected")
-    sys.exit()
+                if soup.find('div',class_='g-recaptcha') is None and soup.find('div',id='headbar') is None:
+                    sleep(2)
+                    message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+                    message = message_history.messages[0].message
+                    sys.stdout.write('\r                                                     \r')
+                    sys.stdout.write('\r'+yellow+message)
+                    if message_history.messages[0].message.find('Please stay on') != -1 or message_history.messages[0].message.find('You must stay') != -1:
+                        timer = re.findall(r'([\d.]*\d+)',message)
+                        sleep(int(timer[0]))
+                        sleep(3)
+                        message_history = client(GetHistoryRequest(peer=channel_entity, limit=1, offset_date=None, offset_id=0, max_id=0, min_id=0,add_offset=0, hash=0))
+                        sys.stdout.write('\r                                                     \r')
+                        sys.stdout.write('\r{}'.format(hijau)+message_history.messages[0].message+'\n')
+
+                elif soup.find('div',id='headbar') is not None:
+                    for data in soup.find_all('div',class_='container-fluid'):
+                        code = data.get('data-code')
+                        timer = data.get('data-timer')
+                        token = data.get('data-token')
+                        sleep(int(timer))
+                        r = c.post('https://dogeclick.com/reward',data={'code': code, 'token': token},headers=ua)
+                        jsn = json.loads(r.text)
+                        sys.stdout.write('\r                                                     \r')
+                        sys.stdout.write(hijau+"\rYou earned "+jsn['reward']+" LTC for visiting sites\n")
+                else:
+                    sys.stdout.write('\r                                                     \r')
+                    sys.stdout.write(red+'\rCaptcha detected')
+                    sleep(2)
+                    client(GetBotCallbackAnswerRequest(channel_username,channel_id,data=message_history.messages[0].reply_markup.rows[1].buttons[1].data))
+                    sys.stdout.write('\r                                                     \r')
+                    print (red+'\rSuccessfully Skip Captcha\n')
+
+            client.send_message(entity=channel_entity,message='balance')
+            sleep(6)
+            message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+            balance_history_log(phone_number,bot, message_history.messages[0].message)
+            client.disconnect()
+        except:
+            client.send_message(entity=channel_entity,message='balance')
+            sleep(6)
+            message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+            balance_history_log(phone_number,bot, message_history.messages[0].message)
+            print(red+"ERROR Detected")
+            client.disconnect()
+    if item[0] == endBotAux:
+        print(blue+"Waiting 10 minutes for the next bot...")    
+        sleep(600)   

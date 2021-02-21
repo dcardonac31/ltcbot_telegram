@@ -127,11 +127,11 @@ try:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
 except:
     client.send_message(entity=channel_entity,message='balance')
     sleep(6)
     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
-    balance_history_log(phone_number,bot, message_history.messages[0].message)
+    balance_history_log(phone_number,bot, message_history.messages[0].message, api_id, api_hash)
     print(red+"ERROR Detected")
     sys.exit()
