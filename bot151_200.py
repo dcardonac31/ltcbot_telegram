@@ -11,6 +11,8 @@ from colorama import Fore, Back, Style
 from datetime import datetime
 import psycopg2
 from psycopg2 import Error
+import random
+from decimal import Decimal
 
 #File pass2fac
 filepass2fac = open("pass2fac.txt","r")
@@ -39,6 +41,7 @@ connDB = psycopg2.connect(
 initialBot = 151
 endBot = 200
 endBotAux = 0
+wallet = ''
 
 #warna
 colorama.init(autoreset=True)
@@ -94,6 +97,10 @@ while control_End_Bucle == 0:
     cursor2 = connDB.cursor()
     cursor2.execute('SELECT MAX(idbot) FROM bots WHERE idbot <= '+str(endBot))
 
+    number_ramdom = random.randint(1,128)
+    cursor3 = connDB.cursor()
+    cursor3.execute('SELECT "walletAddress" FROM wallet WHERE id = ' + str(number_ramdom))
+
     listBots = []
 
     for row in cursor:
@@ -101,6 +108,9 @@ while control_End_Bucle == 0:
 
     for row in cursor2:
         endBotAux = row[0]
+
+    for row in cursor3:
+        wallet = row[0]    
 
     print("--------------------")
     print("Last bots: ")
@@ -141,6 +151,7 @@ while control_End_Bucle == 0:
             for ulang in range(999999999):          
                 sys.stdout.write('\r                                                        \r')
                 sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
+                client.send_message(entity=channel_entity,message='Cancel')                
                 client.send_message(entity=channel_entity,message='🖥 Visit sites')
                 sleep(3)
                 message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
@@ -192,7 +203,35 @@ while control_End_Bucle == 0:
             sleep(6)
             message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
             balance_history_log(phone_number,bot, message_history.messages[0].message)
-            client.disconnect()
+            balance_value = message_history.messages[0].message.replace("Available balance: ","")
+            balance_value = balance_value.replace(" LTC","")
+            balance_value_decimal = Decimal(balance_value)
+            print(balance_value_decimal)
+            if balance_value_decimal >= 0.0009 and bot != 1:
+                print('Withdraw')
+                client.send_message(entity=channel_entity,message='Withdraw')
+                sleep(10)
+                print('Wallet: '+wallet)
+                client.send_message(entity=channel_entity,message=wallet)
+                sleep(10)
+                print(balance_value)
+                client.send_message(entity=channel_entity,message=balance_value)
+                sleep(12)
+                confirmation_fee = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+                sleep(10)
+                print('Confirm')
+                client.send_message(entity=channel_entity,message='Confirm')
+                sleep(10)
+                text_confirmation_fee = confirmation_fee.messages[0].message
+                len_fee = len(text_confirmation_fee)
+                fee = text_confirmation_fee[(len_fee-15):(len_fee-5)]
+                fee_decimal = Decimal(fee)
+                print(fee_decimal)
+                sentence_insert ="INSERT INTO withdrawlog (withdrawaldate, idbot, phonenumber, withdrawalvalue, withdrawfee) VALUES (%s, %s, %s, %s, %s);"
+                values = (datetime.now(), int(bot), phone_number, balance_value_decimal, fee_decimal )
+                cursor.execute(sentence_insert, values)
+                connDB.commit()
+                client.disconnect()
         except:
             client.send_message(entity=channel_entity,message='balance')
             sleep(6)

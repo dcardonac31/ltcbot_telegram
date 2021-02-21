@@ -79,7 +79,7 @@ if not os.path.exists('session'):
 
 api_id = '2164319'
 api_hash = 'c5509e9a858be29a9d34aba24404cd46'
-phone_number = '+573126533851'
+phone_number = '+16605944101'
 bot = '21'
 walletltc = 'M9P4J6mAwBTV3Yvuxyzyf9qwmumpSaiXMq'
 print(bot)

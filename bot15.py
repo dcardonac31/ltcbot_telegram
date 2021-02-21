@@ -28,7 +28,7 @@ def balance_history_log(phone, bot_number,balance_value, apiid, apihash):
         today = datetime.now()
         balance_value = balance_value.replace(".",",")
         balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
-        insertbot = 'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
+        insertbot = bot_number+";"+'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
         print(balance_history)
         f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
@@ -51,9 +51,9 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '2810231'
-api_hash = '9740a99bfc8f96d848fcd826a7c12ad8'
-phone_number = '+573126562718'
+api_id = '3659732'
+api_hash = '0b7a4ba445308cfea1201a2b87996194'
+phone_number = '+17867392446'
 bot = '15'
 print(bot)
 print(phone_number)

@@ -38,8 +38,8 @@ connDB = psycopg2.connect(
     password = passConn
 )
 
-initialBot = 201
-endBot = 250
+initialBot = 1
+endBot = 50
 endBotAux = 0
 wallet = ''
 
@@ -151,7 +151,7 @@ while control_End_Bucle == 0:
             for ulang in range(999999999):          
                 sys.stdout.write('\r                                                        \r')
                 sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
-                client.send_message(entity=channel_entity,message='Cancel')                
+                client.send_message(entity=channel_entity,message='Cancel')
                 client.send_message(entity=channel_entity,message='🖥 Visit sites')
                 sleep(3)
                 message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
@@ -207,7 +207,7 @@ while control_End_Bucle == 0:
             balance_value = balance_value.replace(" LTC","")
             balance_value_decimal = Decimal(balance_value)
             print(balance_value_decimal)
-            if balance_value_decimal >= 0.0009 and bot != 1:
+            if balance_value_decimal >= 0.0009 and int(bot) != 1:
                 print('Withdraw')
                 client.send_message(entity=channel_entity,message='Withdraw')
                 sleep(10)

@@ -38,8 +38,8 @@ connDB = psycopg2.connect(
     password = passConn
 )
 
-initialBot = 201
-endBot = 250
+initialBot = 101
+endBot = 150
 endBotAux = 0
 wallet = ''
 
