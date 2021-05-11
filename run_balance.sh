@@ -1,4 +1,3 @@
-sleep 22m
 python bot1_balance.py
 python bot1_balance.py
 python bot1_balance.py

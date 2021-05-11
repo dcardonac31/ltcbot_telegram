@@ -13,6 +13,10 @@ import psycopg2
 from psycopg2 import Error
 import random
 from decimal import Decimal
+import os
+import webbrowser
+
+
 
 #File pass2fac
 filepass2fac = open("pass2fac.txt","r")
@@ -64,7 +68,8 @@ def balance_history_log(phone, bot_number,balance_value):
         balance_history = phone_number + ';' + bot + ';' + str(today) + ';' + balance_value +'\n' 
         insertbot = bot_number+";"+'insert into ltcbottelegram.bots values('+bot_number+','+'"'+phone_number+'",'+api_id+','+'"'+api_hash+'")'+'\n'
         print(balance_history)
-        f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
+        # f = open("/storage/emulated/0/Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
+        f = open("C:/Users/david/Downloads/MEmu Download/bot_ltc/ltcbot_telegram/balance_history.txt","a")
         f.write(balance_history)
         f.close()
 
@@ -86,31 +91,28 @@ api_id = ''
 api_hash = ''
 phone_number = ''
 bot = ''
-
+number_ramdom = 0
+number_ramdom = 0
 control_End_Bucle = 0
 
 
 while control_End_Bucle == 0:
     cursor = connDB.cursor()
-    cursor.execute('SELECT * FROM bots where IdBot >='+str(initialBot)+' and IdBot <='+str(endBot)+' ORDER BY IdBot')
+    SELECT l.idbot, b.phonenumber, b.apiid, b.apihash, l.balance FROM public."LastBalanceByBot" l inner join bots b on l.idbot = b.idbot left join botsuspend s on l.idbot = s.idbotsuspend where l.idbot != 1 and s.idbotsuspend is null and l.balance < 0.00029
 
     cursor2 = connDB.cursor()
     cursor2.execute('SELECT MAX(idbot) FROM bots WHERE idbot <= '+str(endBot))
 
-    number_ramdom = random.randint(1,128)
-    cursor3 = connDB.cursor()
-    cursor3.execute('SELECT "walletAddress" FROM wallet WHERE id = ' + str(number_ramdom))
 
     listBots = []
 
     for row in cursor:
         listBots.append(row)
+        print(blue+"bot: "+str(row[0]) + " balance: "+str(row[4]))
 
     for row in cursor2:
         endBotAux = row[0]
-
-    for row in cursor3:
-        wallet = row[0]    
+  
 
     print("--------------------")
     print("Last bots: ")
@@ -118,6 +120,13 @@ while control_End_Bucle == 0:
     print("--------------------")
 
     for item in listBots:
+        today = datetime.now()
+        number_ramdom = random.randint(1,128)
+        print("Number ramdon: "+str(number_ramdom))
+        cursor3 = connDB.cursor()
+        cursor3.execute('SELECT "walletAddress" FROM wallet WHERE id = ' + str(number_ramdom))
+        for row in cursor3:
+            wallet = row[0]  
         print("--------------------")        
         api_id = str(item[2])
         print("api_id: " + api_id)
@@ -136,6 +145,13 @@ while control_End_Bucle == 0:
                 me = client.sign_in(phone_number,input('{}Code Sign in {}>>{} '.format(hijau,abu,putih)))
             except SessionPasswordNeededError:
                 me = client.start(phone_number,pass2fac)
+            except:
+                sentence_insert_botsuspend = "INSERT INTO public.botsuspend(idbotsuspend) VALUES (%s);"
+                value = (int(bot))
+                cursor.execute(sentence_insert_botsuspend, [value])
+                connDB.commit()
+                print(red+"accountbanned id: " + bot)
+                break
 
         channel_username = '@Litecoin_click_bot'
 
@@ -143,43 +159,78 @@ while control_End_Bucle == 0:
         c = requests.session()
 
         ua = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
         }
 
         channel_entity = client.get_entity(channel_username)
         try:
             for ulang in range(999999999):          
-                sys.stdout.write('\r                                                        \r')
-                sys.stdout.write('\r{}Trying to Fetch the URL'.format(yellow2))
-                client.send_message(entity=channel_entity,message='Cancel')                
+                print('\r                                                        \r')
+                print('\r{}Trying to Fetch the URL'.format(yellow2))
+                # client.send_message(entity=channel_entity,message='Cancel')
                 client.send_message(entity=channel_entity,message='🖥 Visit sites')
                 sleep(3)
                 message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
                 channel_id = message_history.messages[0].id
                 if message_history.messages[0].message.find('Sorry, there are no new ads available.') != -1:
-                    sys.stdout.write('\r                                                     \r')
-                    sys.stdout.write('\r{}Sorry, there are no new ads available.\n'.format(red2))
+                    print('\r                                                     \r')
+                    print('\r{}Sorry, there are no new ads available.\n'.format(red2))
                     break
+
+                if message_history.messages[0].message.find('In order to use this bot, you must agree to our') != -1:
+                    print('In order to use this bot, you must agree to our')
+                    sentence_insert_botsuspend = "INSERT INTO public.botsuspend(idbotsuspend) VALUES (%s);"
+                    value = (int(bot))
+                    cursor.execute(sentence_insert_botsuspend, [value])
+                    connDB.commit()
+                    print(red+"accountbanned id: " + bot)
+                    break
+
+
                 url = message_history.messages[0].reply_markup.rows[0].buttons[0].url
-                sys.stdout.write('\r                                                     \r')
-                sys.stdout.write('\r{}Visit To URL {}'.format(yellow2,putih)+url)
+                print('\r                                                     \r')
+                print('\r{}Visit To URL {}'.format(yellow2,putih)+url)
+
 
                 r = c.get(url,headers=ua)
                 soup = BeautifulSoup(r.text,"html.parser")
+
+               # print(soup.text)
+
+                # if soup.text.find('Checking your browser before accessing doge.click'):
+                #     print(blue+"Bot: "+bot)
+                #     print(blue + "Wait 15 s")
+                #     sleep(15)
+                #     os.system("termux-open-url \""+url+"\"")
+                #     print(red+"--------------> Validation Cloudflare <-------------")
+
+                if soup.text.find('Checking your browser before accessing doge.click'):
+                    print(blue+"Bot: "+bot)
+                    print(blue + "Wait 15 s")
+                    sleep(5)
+                    webbrowser.register('edge',
+                    	None,
+                    	webbrowser.BackgroundBrowser("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"))
+                    webbrowser.get('edge').open(url)
+                    print(red+"--------------> Validation Cloudflare <-------------")
+                    sleep(60)
+                    os.startfile("C:/Users/david/Downloads/MEmu Download/bot_ltc/ltcbot_telegram/taskkillEdge.bat")
+                    sleep(3)
+
 
                 if soup.find('div',class_='g-recaptcha') is None and soup.find('div',id='headbar') is None:
                     sleep(2)
                     message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
                     message = message_history.messages[0].message
-                    sys.stdout.write('\r                                                     \r')
-                    sys.stdout.write('\r'+yellow+message)
+                    print('\r                                                     \r')
+                    print('\r'+yellow+message)
                     if message_history.messages[0].message.find('Please stay on') != -1 or message_history.messages[0].message.find('You must stay') != -1:
                         timer = re.findall(r'([\d.]*\d+)',message)
                         sleep(int(timer[0]))
                         sleep(3)
                         message_history = client(GetHistoryRequest(peer=channel_entity, limit=1, offset_date=None, offset_id=0, max_id=0, min_id=0,add_offset=0, hash=0))
-                        sys.stdout.write('\r                                                     \r')
-                        sys.stdout.write('\r{}'.format(hijau)+message_history.messages[0].message+'\n')
+                        print('\r                                                     \r')
+                        print('\r{}'.format(hijau)+message_history.messages[0].message+'\n')
 
                 elif soup.find('div',id='headbar') is not None:
                     for data in soup.find_all('div',class_='container-fluid'):
@@ -188,26 +239,31 @@ while control_End_Bucle == 0:
                         token = data.get('data-token')
                         sleep(int(timer))
                         r = c.post('https://dogeclick.com/reward',data={'code': code, 'token': token},headers=ua)
-                        jsn = json.loads(r.text)
-                        sys.stdout.write('\r                                                     \r')
-                        sys.stdout.write(hijau+"\rYou earned "+jsn['reward']+" LTC for visiting sites\n")
+                        # jsn = json.loads(r.text)
+                        # print('\r                                                     \r')
+                        # print(hijau+"\rYou earned "+jsn['reward']+" LTC for visiting sites\n")
                 else:
-                    sys.stdout.write('\r                                                     \r')
-                    sys.stdout.write(red+'\rCaptcha detected')
+                    print('\r                                                     \r')
+                    print(red+'\rCaptcha detected')
                     sleep(2)
                     client(GetBotCallbackAnswerRequest(channel_username,channel_id,data=message_history.messages[0].reply_markup.rows[1].buttons[1].data))
-                    sys.stdout.write('\r                                                     \r')
+                    print('\r                                                     \r')
                     print (red+'\rSuccessfully Skip Captcha\n')
 
             client.send_message(entity=channel_entity,message='balance')
             sleep(6)
             message_history = client(GetHistoryRequest(peer=channel_entity,limit=1,offset_date=None,offset_id=0,max_id=0,min_id=0,add_offset=0,hash=0))
+            today = datetime.now()
             balance_history_log(phone_number,bot, message_history.messages[0].message)
             balance_value = message_history.messages[0].message.replace("Available balance: ","")
             balance_value = balance_value.replace(" LTC","")
             balance_value_decimal = Decimal(balance_value)
+            sentence_insert_balance ="INSERT INTO public.balanceltcbot(idbot, datetimeexecution, balance) VALUES (%s, %s, %s);"
+            values = (int(bot),today,balance_value_decimal)
+            cursor.execute(sentence_insert_balance, values)
+            connDB.commit()
             print(balance_value_decimal)
-            if balance_value_decimal >= 0.0009 and bot != 1:
+            if balance_value_decimal >= 0.0005008 and today.hour >= 0 and today.hour <= 5:
                 print('Withdraw')
                 client.send_message(entity=channel_entity,message='Withdraw')
                 sleep(10)
@@ -227,11 +283,12 @@ while control_End_Bucle == 0:
                 fee = text_confirmation_fee[(len_fee-15):(len_fee-5)]
                 fee_decimal = Decimal(fee)
                 print(fee_decimal)
-                sentence_insert ="INSERT INTO withdrawlog (withdrawaldate, idbot, phonenumber, withdrawalvalue, withdrawfee) VALUES (%s, %s, %s, %s, %s);"
-                values = (datetime.now(), int(bot), phone_number, balance_value_decimal, fee_decimal )
+                sentence_insert ="INSERT INTO withdrawlog (withdrawaldate, idbot, phonenumber, withdrawalvalue, withdrawfee, walletaddress) VALUES (%s, %s, %s, %s, %s, %s);"
+                values = (datetime.now(), int(bot), phone_number, balance_value_decimal, fee_decimal, wallet)
                 cursor.execute(sentence_insert, values)
                 connDB.commit()
                 client.disconnect()
+
         except:
             client.send_message(entity=channel_entity,message='balance')
             sleep(6)

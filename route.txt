@@ -1,4 +1,14 @@
 cd /storage/emulated/0/Download/bot_ltc/ltcbot_telegram
+cd '/c/Users/david/Downloads/MEmu Download/bot_ltc/ltcbot_telegram'
+bash run_balance.sh
+bash run.sh
+bash run2.sh
+bash run3.sh
+bash run4.sh
+bash run5.sh
+bash run6.sh
+bash run7.sh
+bash run1_2.sh
 
 https://t.me/Litecoin_click_bot?start=c2ce
 

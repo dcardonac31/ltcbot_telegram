@@ -51,6 +51,7 @@ api_id = ''
 api_hash = ''
 phone_number = ''
 bot = ''
+number_ramdom = 0
 
 control_End_Bucle = 0
 

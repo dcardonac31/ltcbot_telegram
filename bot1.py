@@ -51,10 +51,10 @@ print ("===================================================")
 if not os.path.exists('session'):
     os.makedirs('session')
 
-api_id = '1730757'
-api_hash = 'ca50df066d6830c5ede76cd1779e62a4'
+api_id = '2129260'
+api_hash = '923c5f10c0fb32438fd04c3a6c38a9aa'
 phone_number = '+573054352229'
-bot = '1'
+bot = '358'
 print(bot)
 print(phone_number)
 
@@ -68,15 +68,15 @@ if not client.is_user_authorized():
         password = input('{}Masukan Password 2fa Anda {}>>{} '.format(hijau,abu,putih))
         me = client.start(phone_number,password)
 
-channel_username = '@Litecoin_click_bot'
+channel_username = '@Click_Box_Bot'
 
 
 c = requests.session()
 
 ua = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
 }
-
+print(channel_username)
 channel_entity = client.get_entity(channel_username)
 try:
     for ulang in range(999999999):          

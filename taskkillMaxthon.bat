@@ -1,0 +1,1 @@
+taskkill /im Maxthon.exe /F

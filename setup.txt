@@ -1,7 +1,7 @@
 pkg install python
 pkg install nano
 pkg install pip
-Pkg install telethon
+pkg install telethon
 pip install telethon
 pip install --upgrade pip
 pip install requests
@@ -10,3 +10,9 @@ pip install rsa
 pip install pyaes
 pip install async_generator
 pip install colorama
+***Windows
+pip install psycopg2
+pip install psycopg2-binary
+****termux
+pkg install postgresql python make clang
+pip3 install psycopg2
